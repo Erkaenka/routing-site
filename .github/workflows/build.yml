@@ -1,0 +1,48 @@
+name: Build GeoSite
+
+on:
+  schedule:
+    - cron: '0 1 * * 0'  # каждое воскресенье в 01:00 UTC
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Clone geosite tool
+        run: git clone https://github.com/v2fly/domain-list-community.git
+
+      - name: Download dependencies
+        run: |
+          cd domain-list-community
+          go mod download
+
+      - name: Generate geosite.dat
+        run: |
+          cd domain-list-community
+          go run ./ --datapath=../dlc.dat --output=../geosite.dat
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: geosite.dat
+          path: geosite.dat
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest GeoSite
+          body: Автоматически сгенерированный файл geosite.dat
+          files: geosite.dat
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
