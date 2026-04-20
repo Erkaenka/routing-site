@@ -1,0 +1,6 @@
+include:geosite:apple
+include:geosite:microsoft
+include:geosite:private
+include:geosite:win-spy
+include:geosite:torrent
+include:https://raw.githubusercontent.com/frayZV/simple-ru-geosite/refs/heads/main/data/category-ru
