@@ -2,7 +2,7 @@ name: Build GeoSite
 
 on:
   schedule:
-    - cron: '0 1 * * 0'  # Каждое воскресенье в 01:00 UTC
+    - cron: '0 1 * * 0'
   workflow_dispatch:
 
 jobs:
@@ -12,9 +12,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download latest geosite.dat from runetfreedom
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Clone geosite tool
+        run: git clone https://github.com/v2fly/domain-list-community.git
+
+      - name: Download dependencies
         run: |
-          curl -L -o geosite.dat https://github.com/runetfreedom/russia-blocked-geosite/releases/latest/download/geosite.dat
+          cd domain-list-community
+          go mod download
+
+      - name: Generate geosite.dat
+        run: |
+          cd domain-list-community
+          go run ./ --datapath=../dlc.dat --output=../geosite.dat
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -27,7 +41,7 @@ jobs:
         with:
           tag_name: latest
           name: Latest GeoSite
-          body: Автоматически загруженный файл geosite.dat из runetfreedom/russia-blocked-geosite
+          body: Полный geosite.dat на основе v2fly/domain-list-community
           files: geosite.dat
           prerelease: false
         env:
