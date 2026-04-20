@@ -28,7 +28,7 @@ jobs:
       - name: Generate geosite.dat
         run: |
           cd domain-list-community
-          go run ./ --datapath=../dlc.dat --output=../geosite.dat
+          go run ./ --datapath=../dlc.dat --outputdir=../ --outputname=geosite.dat
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
